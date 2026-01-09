@@ -4,7 +4,7 @@ from pathlib import Path
 import streamlit as st
 import pandas as pd
 
-from data.load import list_data_files, load_ims_file
+from pdm.data.load import list_data_files, load_ims_file
 
 
 st.set_page_config(page_title="Rotating Equipment PdM", layout="wide")
