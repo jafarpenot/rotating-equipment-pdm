@@ -6,6 +6,10 @@ import pandas as pd
 
 from pdm.data.load_cmapss import load_cmapss_train, add_rul_labels
 
+from pdm.features.rolling import add_rolling_features
+from pdm.models.anomaly import fit_isolation_forest, score_anomalies
+
+
 
 st.set_page_config(page_title="Rotating Equipment PdM", layout="wide")
 st.title("Predictive Maintenance (C-MAPSS)")
@@ -34,6 +38,19 @@ sensor = st.sidebar.selectbox("Sensor", sensor_cols, index=0)
 
 col1, col2 = st.columns(2)
 
+# Prepare features on FULL training set so anomaly model learns broad normal behavior
+sensor_cols = [c for c in df.columns if c.startswith("s")]
+df_feat, feat_cols = add_rolling_features(df, sensor_cols=sensor_cols, window=20)
+
+# Fit anomaly model on early-life data only (more "normal")
+early = df_feat[df_feat["rul"] > 50]  # simple heuristic, tweak later
+model, scaler = fit_isolation_forest(early, feat_cols)
+
+# Score selected engine
+engine_feat = df_feat[df_feat["engine_id"] == engine_id].sort_values("cycle").copy()
+engine_feat["anomaly_score"] = score_anomalies(engine_feat, feat_cols, model, scaler)
+
+
 with col1:
     st.subheader(f"Sensor {sensor} over cycles (Engine {engine_id})")
     st.line_chart(engine_df.set_index("cycle")[sensor])
@@ -55,3 +72,7 @@ st.json({
     "rul_start": int(engine_df["rul"].iloc[0]),
     "rul_end": int(engine_df["rul"].iloc[-1]),
 })
+
+st.subheader("Anomaly score over cycles")
+st.line_chart(engine_feat.set_index("cycle")["anomaly_score"])
+
