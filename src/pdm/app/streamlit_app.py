@@ -12,8 +12,6 @@ st.title("Predictive Maintenance (C-MAPSS)")
 st.caption("Step 1: Load real multivariate time-series data and visualize sensors + RUL.")
 
 root = st.sidebar.text_input("Dataset folder", value="data/raw/CMAPSSData")
-
-root = st.sidebar.text_input("Dataset folder", value="data/raw/cmapss")
 dataset = st.sidebar.selectbox("Dataset", ["FD001", "FD002", "FD003", "FD004"], index=0)
 
 root_path = Path(root)
