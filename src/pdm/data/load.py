@@ -9,7 +9,6 @@ def load_ims_file(file_path: str | Path) -> pd.DataFrame:
     """
     Load a single IMS bearing file into a DataFrame.
 
-
     Many IMS files are plain text with whitespace-separated numeric columns.
     This loader keeps it flexible: it loads all numeric columns as signals and
     adds an index column 't' (sample index).
